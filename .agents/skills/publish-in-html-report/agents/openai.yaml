@@ -1,0 +1,7 @@
+interface:
+  display_name: "Publish HTML report"
+  short_description: "Publish an HTML report to GitHub Pages"
+  default_prompt: "Use $publish-in-html-report to publish the selected standalone HTML report."
+
+policy:
+  allow_implicit_invocation: false
