@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="color-scheme" content="light dark">
+        <title>qhashofficial/pumpkin-plugins master review</title>
+        <style>
+            :root {
+                font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+                font-synthesis: none;
+                color: var(--foreground, #17202a);
+                color-scheme: light dark;
+                background: var(--background, #fff);
+                text-rendering: optimizeLegibility;
+            }
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+                color: var(--foreground, #17202a);
+                background: var(--background, #fff);
+            }
+            a {
+                color: var(--accent, #2563eb);
+                overflow-wrap: anywhere;
+                text-underline-offset: 3px;
+            }
+            .report {
+                width: min(100% - 32px, 980px);
+                padding: 28px 0 44px;
+                margin: 0 auto;
+            }
+            .eyebrow {
+                margin: 0 0 10px;
+                font-size: 12px;
+                font-weight: 700;
+                color: var(--muted-foreground, #667085);
+                text-transform: uppercase;
+                letter-spacing: 0.09em;
+            }
+            h1 {
+                max-width: 820px;
+                margin: 0;
+                font-size: clamp(30px, 5vw, 46px);
+                line-height: 1.08;
+                letter-spacing: -0.04em;
+            }
+            .dek {
+                max-width: 760px;
+                margin: 14px 0 0;
+                font-size: 17px;
+                line-height: 1.55;
+                color: var(--muted-foreground, #667085);
+            }
+            .decision {
+                display: flex;
+                gap: 13px;
+                align-items: flex-start;
+                padding: 16px 18px;
+                margin: 24px 0;
+                color: var(--foreground, #17202a);
+                background: var(--destructive-surface, #fff1f0);
+                border: 1px solid color-mix(in srgb, var(--destructive, #b42318) 42%, transparent);
+                border-radius: 14px;
+            }
+            .decision .mark {
+                display: grid;
+                flex: 0 0 auto;
+                place-items: center;
+                width: 28px;
+                height: 28px;
+                font-weight: 800;
+                color: var(--destructive-foreground, #fff);
+                background: var(--destructive, #b42318);
+                border-radius: 50%;
+            }
+            .decision strong {
+                display: block;
+                margin: 1px 0 4px;
+                font-size: 18px;
+            }
+            p {
+                line-height: 1.62;
+            }
+            .decision p {
+                margin: 0;
+                line-height: 1.5;
+            }
+            .meta-grid {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 10px;
+                margin: 20px 0 34px;
+            }
+            .metric {
+                padding: 14px;
+                background: var(--card, #f8fafc);
+                border: 1px solid var(--border, #d0d5dd);
+                border-radius: 12px;
+            }
+            .metric .label {
+                display: block;
+                font-size: 12px;
+                font-weight: 650;
+                color: var(--muted-foreground, #667085);
+            }
+            .metric .value {
+                display: block;
+                margin-top: 7px;
+                font-size: 20px;
+                font-weight: 750;
+                letter-spacing: -0.02em;
+            }
+            .metric .sub {
+                display: block;
+                margin-top: 4px;
+                font-size: 12px;
+                color: var(--muted-foreground, #667085);
+                overflow-wrap: anywhere;
+            }
+            section {
+                margin-top: 34px;
+            }
+            h2 {
+                margin: 0 0 14px;
+                font-size: 23px;
+                letter-spacing: -0.025em;
+            }
+            h3 {
+                margin: 0;
+                font-size: 17px;
+                line-height: 1.35;
+            }
+            .section-intro {
+                max-width: 800px;
+                margin: -5px 0 16px;
+                color: var(--muted-foreground, #667085);
+            }
+            .finding {
+                padding: 19px;
+                margin: 16px 0;
+                background: var(--card, #f8fafc);
+                border: 1px solid var(--border, #d0d5dd);
+                border-left: 4px solid var(--destructive, #b42318);
+                border-radius: 12px;
+            }
+            .finding-head {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 9px;
+                align-items: center;
+                margin-bottom: 12px;
+            }
+            .severity {
+                padding: 4px 8px;
+                font-size: 11px;
+                font-weight: 800;
+                color: var(--destructive, #b42318);
+                letter-spacing: 0.05em;
+                background: var(--destructive-surface, #fff1f0);
+                border-radius: 999px;
+            }
+            .finding p {
+                margin: 10px 0;
+            }
+            .finding p:last-child {
+                margin-bottom: 0;
+            }
+            .evidence {
+                padding: 12px 14px;
+                margin: 12px 0;
+                font:
+                    13px / 1.55 ui-monospace,
+                    SFMono-Regular,
+                    Menlo,
+                    Consolas,
+                    monospace;
+                overflow-wrap: anywhere;
+                background: var(--code-background, #edf1f5);
+                border-radius: 9px;
+            }
+            .fix {
+                padding-top: 11px;
+                border-top: 1px solid var(--border, #d0d5dd);
+            }
+            .areas {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 12px;
+            }
+            .area {
+                padding: 16px;
+                background: var(--card, #f8fafc);
+                border: 1px solid var(--border, #d0d5dd);
+                border-radius: 12px;
+            }
+            .area p {
+                margin: 8px 0 0;
+                font-size: 14px;
+                color: var(--muted-foreground, #667085);
+            }
+            code {
+                font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+                font-size: 0.92em;
+            }
+            .table-wrap {
+                overflow-x: auto;
+                border: 1px solid var(--border, #d0d5dd);
+                border-radius: 12px;
+            }
+            table {
+                width: 100%;
+                font-size: 14px;
+                border-collapse: collapse;
+            }
+            th,
+            td {
+                padding: 12px 14px;
+                line-height: 1.5;
+                vertical-align: top;
+                text-align: left;
+                border-bottom: 1px solid var(--border, #d0d5dd);
+            }
+            th {
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+                background: var(--secondary, #f2f4f7);
+            }
+            tr:last-child td {
+                border-bottom: 0;
+            }
+            .callout {
+                padding: 13px 15px;
+                margin: 14px 0 0;
+                line-height: 1.55;
+                background: var(--warning-surface, #fff7e6);
+                border-radius: 10px;
+            }
+            .notes {
+                padding-left: 21px;
+                margin: 0;
+            }
+            .notes li {
+                margin: 8px 0;
+                line-height: 1.55;
+            }
+            .status-row {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin: 14px 0;
+            }
+            .pill {
+                display: inline-flex;
+                align-items: center;
+                padding: 6px 9px;
+                font-size: 12px;
+                font-weight: 650;
+                color: var(--muted-foreground, #667085);
+                background: var(--card, #f8fafc);
+                border: 1px solid var(--border, #d0d5dd);
+                border-radius: 999px;
+            }
+            details {
+                margin-top: 18px;
+                background: var(--card, #f8fafc);
+                border: 1px solid var(--border, #d0d5dd);
+                border-radius: 12px;
+            }
+            summary {
+                padding: 13px 15px;
+                font-weight: 700;
+                cursor: pointer;
+            }
+            details .detail-body {
+                padding: 0 15px 15px;
+            }
+            .foot {
+                padding-top: 15px;
+                margin-top: 36px;
+                font-size: 12px;
+                line-height: 1.55;
+                color: var(--muted-foreground, #667085);
+                border-top: 1px solid var(--border, #d0d5dd);
+            }
+            @media (max-width: 660px) {
+                .report {
+                    width: min(100% - 24px, 980px);
+                    padding-top: 22px;
+                }
+                .meta-grid {
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
+                .areas {
+                    grid-template-columns: 1fr;
+                }
+                .finding {
+                    padding: 15px;
+                }
+                th,
+                td {
+                    padding: 10px;
+                }
+                .table-wrap tbody {
+                    display: block;
+                }
+                .table-wrap tr {
+                    display: grid;
+                    grid-template-columns: 84px minmax(0, 1fr);
+                }
+                .table-wrap th,
+                .table-wrap td {
+                    min-width: 0;
+                }
+                .table-wrap td {
+                    overflow-wrap: anywhere;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <main class="report">
+            <header>
+                <p class="eyebrow">Read-only branch review · 20 October 2026</p>
+                <h1>qhashofficial / pumpkin-plugins</h1>
+                <p class="dek">
+                    Review of
+                    <a
+                        href="https://github.com/filiphsps/pumpkin-plugins/compare/master...qhashofficial:pumpkin-plugins:master"
+                        >the requested master comparison</a
+                    >, pinned to the commits below. Focus: scope, concrete changes, security-sensitive behavior, and
+                    merge readiness.
+                </p>
+            </header>
+
+            <div class="decision" role="status" aria-label="Merge recommendation: do not merge as-is">
+                <span class="mark" aria-hidden="true">!</span>
+                <div>
+                    <strong>Do not merge this comparison as-is.</strong>
+                    <p>
+                        It combines unrelated work across 832 files and exposes a repository
+                        <code>contents: write</code>
+                        token to source-controlled release install/build steps. Fix the credential scope and split the
+                        branch into reviewable topic PRs before considering any merge.
+                    </p>
+                </div>
+            </div>
+
+            <div class="meta-grid">
+                <div class="metric">
+                    <span class="label">Commits ahead / behind</span><span class="value">538 / 2</span
+                    ><span class="sub">Compared with current <code>master</code></span>
+                </div>
+                <div class="metric">
+                    <span class="label">Changed files</span><span class="value">832</span
+                    ><span class="sub">Full local three-dot diff</span>
+                </div>
+                <div class="metric">
+                    <span class="label">Diff size</span><span class="value">+26,689 / −25,647</span
+                    ><span class="sub">Insertions / deletions</span>
+                </div>
+                <div class="metric">
+                    <span class="label">Fork head</span><span class="value">04e715c</span
+                    ><span class="sub">Full SHA: <code>04e715c1cb50bfcc79ae0e6f931de68919115329</code></span>
+                </div>
+            </div>
+
+            <section aria-labelledby="scope-heading">
+                <h2 id="scope-heading">What is being compared</h2>
+                <div class="table-wrap">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <th scope="row">Base</th>
+                                <td>
+                                    <code>master</code>
+                                    at
+                                    <a
+                                        href="https://github.com/filiphsps/pumpkin-plugins/commit/a066241807c943af01a3cc9a3c44c632f439aaba"
+                                        ><code>a066241807c943af01a3cc9a3c44c632f439aaba</code></a
+                                    >
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Fork head</th>
+                                <td>
+                                    <code>qhashofficial/pumpkin-plugins:master</code>
+                                    at
+                                    <a
+                                        href="https://github.com/qhashofficial/pumpkin-plugins/commit/04e715c1cb50bfcc79ae0e6f931de68919115329"
+                                        ><code>04e715c1cb50bfcc79ae0e6f931de68919115329</code></a
+                                    >
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Merge base</th>
+                                <td><code>f86e8ac78232e26265038fde1194ecc6f83252c5</code></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">PR / checks</th>
+                                <td>
+                                    No open PR for <code>qhashofficial:master</code> was found, and the fork head has no
+                                    check runs attached. CI evidence is unavailable.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="callout">
+                    <strong>Comparison oddity:</strong>
+                    GitHub’s compare API returned only its first 300 changed paths. The 832-file count and complete path
+                    review used a local fetch of the exact fork head and a full Git three-dot diff. The two commits
+                    missing from the fork mean any eventual PR should be rebased or otherwise reconciled with current
+                    <code>master</code>.
+                </p>
+            </section>
+
+            <section aria-labelledby="security-heading">
+                <h2 id="security-heading">Security finding</h2>
+                <p class="section-intro">
+                    One concrete credential-handling issue needs correction before merge. It is a conditional exposure
+                    in the workflow design; this review did not find evidence that the fork has already exploited it.
+                </p>
+                <article class="finding">
+                    <div class="finding-head">
+                        <span class="severity">HIGH · FIX BEFORE MERGE</span>
+                        <h3>Recovery tag code inherits a write-scoped GitHub token</h3>
+                    </div>
+                    <p>
+                        This diff turns recovery into a reusable publish job, grants it <code>contents: write</code>,
+                        and sets <code>GH_TOKEN</code> at job scope. It checks out the selected tag, runs
+                        <code>pnpm install</code>, then resolves plugin metadata by dynamically importing the tag's
+                        configured info module. Tag and commit verification happens afterward. If release assets are
+                        missing, it also runs <code>pnpm run build</code> from that source. All those source-controlled
+                        commands inherit the token. In the base revision, recovery scoped <code>GH_TOKEN</code> to
+                        individual GitHub API steps.
+                    </p>
+                    <div class="evidence">
+                        [publish-plugin-release.yml:35–40] write permission + job-wide token<br>[publish-plugin-release.yml:53–75]
+                        selected tag checkout, install, and plugin resolution<br>[resolve-plugin-release.mjs:42] loads
+                        the plugin info module<br>[plugin-info.mjs:22–25] dynamically imports that module<br>[publish-plugin-release.yml:77–90]
+                        tag/commit validation occurs after source code runs<br>[publish-plugin-release.yml:147–152]
+                        released source build<br>[recover-plugin-release.yml:25–41] default-branch dispatch passes the
+                        requested tag and inherited secrets<br>[base recover-plugin-release.yml:67–71] token was
+                        step-scoped
+                    </div>
+                    <p>
+                        <strong>Consequence:</strong>
+                        if an authorized workflow dispatcher selects a malicious or compromised tag, its install
+                        lifecycle or plugin info module can read and transmit the token before tag verification. The
+                        later build also inherits it. The token can write repository contents and release assets.
+                        Requiring dispatch from the default branch does not make the selected tag's code trusted.
+                    </p>
+                    <p class="fix">
+                        <strong>Fix:</strong>
+                        remove <code>GH_TOKEN</code> from the job environment. Set it only on trusted steps that call
+                        <code>gh api</code>
+                        or upload/download release assets; run tag checkout, dependency installation, metadata import,
+                        and build without that credential. Validate the tag and commit before any source-controlled
+                        scripts execute.
+                    </p>
+                    <p>
+                        <a
+                            href="https://github.com/qhashofficial/pumpkin-plugins/blob/04e715c1cb50bfcc79ae0e6f931de68919115329/.github/workflows/publish-plugin-release.yml#L35-L40"
+                            >Open publish workflow at fork head</a
+                        >
+                        ·
+                        <a
+                            href="https://github.com/qhashofficial/pumpkin-plugins/blob/04e715c1cb50bfcc79ae0e6f931de68919115329/.github/workflows/recover-plugin-release.yml#L25-L41"
+                            >Open recovery workflow at fork head</a
+                        >
+                        ·
+                        <a
+                            href="https://github.com/qhashofficial/pumpkin-plugins/blob/04e715c1cb50bfcc79ae0e6f931de68919115329/scripts/resolve-plugin-release.mjs#L36-L43"
+                            >Open tag metadata resolver</a
+                        >
+                        ·
+                        <a
+                            href="https://github.com/filiphsps/pumpkin-plugins/blob/a066241807c943af01a3cc9a3c44c632f439aaba/.github/workflows/recover-plugin-release.yml#L67-L71"
+                            >Open base recovery token scope</a
+                        >
+                    </p>
+                </article>
+            </section>
+
+            <section aria-labelledby="changes-heading">
+                <h2 id="changes-heading">What changed</h2>
+                <p class="section-intro">
+                    This is a repository-wide accumulation of feature, fix, refactor, test, documentation, and
+                    automation work. These areas are representative, not an exhaustive file-by-file changelog.
+                </p>
+                <div class="areas">
+                    <article class="area">
+                        <h3>CI, releases, and repository automation</h3>
+                        <p>
+                            Reworks CI and documentation workflows, bootstrap/cache behavior, publishing and release
+                            recovery, issue intake, and label automation. Examples:
+                            <code>.github/workflows/ci.yml</code>,
+                            <code>.github/workflows/publish-plugin-release.yml</code>, <code>scripts/release.mjs</code>.
+                        </p>
+                    </article>
+                    <article class="area">
+                        <h3>Plugins and runtime features</h3>
+                        <p>
+                            Changes span Bedrock Addon Manager, Distant Horizons support, Waypoints, Dynamic Lights, Tab
+                            Display, UPnPumpkin, and Apple Skin. Example paths include
+                            <code>packages/bedrock-addon-manager</code>
+                            and
+                            <code>packages/distant-horizons-support-pumpkin</code>.
+                        </p>
+                    </article>
+                    <article class="area">
+                        <h3>Plugin authoring and API tooling</h3>
+                        <p>
+                            Updates Pumpkin PIE API and Plugin Kit behavior, build and test harnesses, WASI capability
+                            tooling, code generation, plugin templates, codemods, port mapping, and update checking.
+                            Examples: <code>tools/plugin-kit</code>, <code>tools/static-hermes-runtime</code>,
+                            <code>turbo/generators</code>.
+                        </p>
+                    </article>
+                    <article class="area">
+                        <h3>Benchmarks and documentation</h3>
+                        <p>
+                            Expands the engine-comparison benchmark harness and workloads, alongside broad
+                            documentation, API reference, and skill updates. Examples:
+                            <code>benchmarks/engine-comparison</code>
+                            and <code>docs</code>.
+                        </p>
+                    </article>
+                </div>
+                <p class="callout">
+                    <strong>Standards:</strong>
+                    repository guidance says a PR should “keep it focused on one topic.” This comparison mixes
+                    independent plugin, tooling, benchmark, CI, and release work, so it should be split before review or
+                    merge.
+                    <a
+                        href="https://github.com/qhashofficial/pumpkin-plugins/blob/04e715c1cb50bfcc79ae0e6f931de68919115329/CONTRIBUTING.md#L27-L31"
+                        >Source: CONTRIBUTING.md</a
+                    >.
+                </p>
+            </section>
+
+            <section aria-labelledby="oddities-heading">
+                <h2 id="oddities-heading">Oddities and review notes</h2>
+                <ul class="notes">
+                    <li>
+                        <strong>Unusually broad divergence:</strong>
+                        538 commits ahead and 2 behind, with 832 changed paths. This is not a small patch waiting for a
+                        PR; it appears to be a long-running fork branch containing many independently reviewable topics.
+                    </li>
+                    <li>
+                        <strong>No current PR or CI result:</strong>
+                        there is no PR to attach review discussion to, and no check runs on the head SHA. The report
+                        cannot treat build, test, or server integration behavior as verified.
+                    </li>
+                    <li>
+                        <strong>Related pre-existing token scope:</strong>
+                        base <code>.github/workflows/release.yml</code> also sets <code>GH_TOKEN</code> job-wide in
+                        existing publish jobs (lines 334, 420, and 465). Audit and narrow those scopes too; the recovery
+                        workflow regression is the direct tag-code exposure identified above.
+                    </li>
+                    <li>
+                        <strong>Maliciousness review:</strong>
+                        targeted static inspection covered credential-bearing workflows, archive handling, plugin
+                        permission checks, network-facing paths, and benchmark artifact processing. No additional
+                        concrete malicious indicator was identified in those inspected paths. That is not proof that all
+                        832 changed files are free of malicious behavior.
+                    </li>
+                    <li>
+                        <strong>No single specification was supplied:</strong>
+                        feature correctness is assessed from repository behavior and standards, not against an
+                        originating issue or acceptance criteria.
+                    </li>
+                </ul>
+                <details>
+                    <summary>Review method and limits</summary>
+                    <div class="detail-body">
+                        <p>
+                            The exact fork head was fetched and compared with the current local/remote
+                            <code>master</code>
+                            using Git’s three-dot diff. Standards review covered
+                            <code>AGENTS.md</code>, <code>CONTRIBUTING.md</code>, <code>docs/code-style.md</code>,
+                            <code>docs/building.md</code>, <code>docs/testing.md</code>,
+                            <code>docs/ci-and-releases.md</code>, and <code>docs/agent-tooling.md</code>. Source review
+                            was static and read-only; no test, build, or real-server validation was run.
+                        </p>
+                        <p>
+                            The independent standards pass found the PR-scope violation and no other actionable style
+                            finding. This review prioritizes security-sensitive changes and representative feature
+                            areas; a full adversarial review would need to be repeated on the final, split PR heads.
+                        </p>
+                    </div>
+                </details>
+            </section>
+
+            <section aria-labelledby="recommendation-heading">
+                <h2 id="recommendation-heading">Merge recommendation</h2>
+                <ol class="notes">
+                    <li>Do not merge the comparison wholesale.</li>
+                    <li>
+                        Fix the release workflow token scope and move validation ahead of source-controlled
+                        install/build execution.
+                    </li>
+                    <li>
+                        Split the branch into topic-focused PRs, reconcile each with current <code>master</code>, and
+                        review each security-sensitive diff independently.
+                    </li>
+                    <li>
+                        Require the relevant CI, package tests, and real-server integration checks on each final PR head
+                        before deciding whether to merge it.
+                    </li>
+                </ol>
+            </section>
+
+            <footer class="foot">
+                Prepared 2026-10-20 from the exact refs listed above. Static review only. This report is a decision aid,
+                not a claim that an exhaustive malware audit or runtime verification has been completed.
+            </footer>
+        </main>
+    </body>
+</html>
